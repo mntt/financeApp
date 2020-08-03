@@ -222,7 +222,6 @@ namespace financeApp
                                 deleteRows.Enabled = false;
                                 Connection.style.SetDisabledButtonStyle(deleteRows);
                             }
-                            this.deleteRows.Click += deleteRows_Click;
                         }
                         else if (result == DialogResult.No)
                         {
@@ -231,6 +230,7 @@ namespace financeApp
                     }
                 }
                 ReloadTempInfoList();
+                this.deleteRows.Click += deleteRows_Click;
             }     
         }
         

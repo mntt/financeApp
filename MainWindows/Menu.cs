@@ -28,7 +28,7 @@ namespace financeApp
 
         private void ShowAdditionalInfo()
         {
-            accountName.Text = "Paskyre: ";
+            accountName.Text = "Paskyra: ";
             currentBalance.Text = "Pinigų likutis: ";
 
             Balances balances = new Balances();

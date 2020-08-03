@@ -36,6 +36,7 @@ namespace financeApp
                     this.FormClosing -= Accounts_FormClosing;
                     Application.Exit();
                 }
+
                 e.Cancel = (result == DialogResult.No);
             }
             else if (saveDataButton.Enabled == false)
@@ -484,7 +485,7 @@ namespace financeApp
                 accountsTable.Rows.RemoveAt(rowIndex);
                 MessageBox.Show("Duomenys ištrinti sėkmingai!", "Pranešimas");
                 InsertAccountNames();
-                LoadSumsList();
+                FixSums();
                 OverwriteTotalSumTable();
                 SetTotalSumTableRowHeaderWidth();
             }
@@ -500,7 +501,7 @@ namespace financeApp
                 DeleteSumsInAffectedRowList();
                 accountsTable.Rows.RemoveAt(rowIndex);
                 InsertAccountNames();
-                LoadSumsList();
+                FixSums();
                 OverwriteTotalSumTable();
                 SetTotalSumTableRowHeaderWidth();
             }
@@ -511,8 +512,15 @@ namespace financeApp
             sumsList.RemoveAll(x => x.accountNameId == rowIndex);
         }
 
-        private void LoadSumsList()
+        private void FixSums()
         {
+            RefreshSumsList();
+            saveDataButton.Enabled = false;
+            Connection.iwdb.DeleteData("Sums", User.ID);
+            Connection.iwdb.DeleteData("StartingSums", User.ID);
+            Connection.iwdb.InsertSums(sumsList);
+            Connection.iwdb.InsertStartingSums(accountsTable, User.ID, false);
+
             foreach (var item in sumsList)
             {
                 accountsTable.Rows[item.accountNameId].Cells[item.dateId].Value = item.sum;
