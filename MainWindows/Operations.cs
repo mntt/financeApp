@@ -184,56 +184,64 @@ namespace financeApp
             if(operationLog.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Nepažymėjote eilutės, kurią norite ištrinti.", "Klaida");
-
             }
             else
             {
+                bool showWarningMessage = true;
+
                 foreach (DataGridViewRow row in operationLog.SelectedRows)
                 {
-                    if (operationLog.Rows[row.Index].Cells[0].Value == null ||
-                        operationLog.Rows[row.Index].Cells[1].Value == null ||
-                        operationLog.Rows[row.Index].Cells[2].Value == null ||
-                        operationLog.Rows[row.Index].Cells[3].Value == null)
+                    var selectedRow = operationLog.Rows[row.Index];
+
+                    if (selectedRow.Cells[0].Value == null || selectedRow.Cells[1].Value == null ||
+                        selectedRow.Cells[2].Value == null || selectedRow.Cells[3].Value == null)
                     {
-                        //istrinam tik eilute, nes nebus sukurtas objektas ir idetas i lista
-                        //i lista objektas bus idetas tik jeigu bus visos keturios eilutes uzpildytos
-                        //issaugoti duomenu irgi neleis kol yra tusciu eiluciu
                         operationLog.Rows.RemoveAt(row.Index);
                         saveOperations.Enabled = true;
                         Connection.style.SetButtonStyle(saveOperations);
                     }
-                    else if (operationLog.Rows[row.Index].Cells[0].Value !=
-                        null && operationLog.Rows[row.Index].Cells[1].Value !=
-                        null && operationLog.Rows[row.Index].Cells[2].Value != null &&
-                        operationLog.Rows[row.Index].Cells[3].Value != null)
+                    else if (selectedRow.Cells[0].Value != null && selectedRow.Cells[1].Value != null &&
+                        selectedRow.Cells[2].Value != null && selectedRow.Cells[3].Value != null)
                     {
-                        DialogResult result = MessageBox.Show("Vienoje arba daugiau eilučių yra duomenų, " +
-                            "kurie susiję su kitomis lentelėmis.\nAr tikrai norite ištrinti pažymėtas eilutes?",
-                            "Pranešimas", MessageBoxButtons.YesNo);
-                        if (result == DialogResult.Yes)
+                        if (showWarningMessage)
                         {
-                            this.deleteRows.Click -= deleteRows_Click;
-                            operationLog.Rows.RemoveAt(row.Index);
-                            saveOperations.Enabled = true;
-                            Connection.style.SetButtonStyle(saveOperations);
-
-                            if (operationLog.Rows.Count == 0)
+                            DialogResult result = MessageBox.Show("Vienoje arba daugiau eilučių yra duomenų, " +
+                             "kurie susiję su kitomis lentelėmis.\nAr tikrai norite ištrinti pažymėtas eilutes?",
+                             "Pranešimas", MessageBoxButtons.YesNo);
+                            if (result == DialogResult.Yes)
                             {
-                                deleteRows.Enabled = false;
-                                Connection.style.SetDisabledButtonStyle(deleteRows);
+                                DeleteSelectedRows(row);
+                                showWarningMessage = false;
                             }
-                        }
-                        else if (result == DialogResult.No)
+                            else if (result == DialogResult.No)
+                            {
+                                break;
+                            }
+
+                        }   
+                        else if (!showWarningMessage)
                         {
-                            break;
+                            DeleteSelectedRows(row);
                         }
                     }
                 }
                 ReloadTempInfoList();
-                this.deleteRows.Click += deleteRows_Click;
             }     
         }
-        
+
+        private void DeleteSelectedRows(DataGridViewRow row)
+        {
+            operationLog.Rows.RemoveAt(row.Index);
+            saveOperations.Enabled = true;
+            Connection.style.SetButtonStyle(saveOperations);
+
+            if (operationLog.Rows.Count == 0)
+            {
+                deleteRows.Enabled = false;
+                Connection.style.SetDisabledButtonStyle(deleteRows);
+            }
+        }
+
         private void ReloadTempInfoList()
         {
             tempInfo.Clear();
